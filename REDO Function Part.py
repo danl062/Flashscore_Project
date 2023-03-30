@@ -25,7 +25,7 @@ config = read_config('my_json.json')
 
 def beautiful_soup(url):
     """
-    This function parse the url on beautiful soup
+    Parse the url on beautiful soup
     """
 
     chrome_options = webdriver.ChromeOptions()
@@ -39,7 +39,7 @@ def beautiful_soup(url):
 
 def competition_name(soup):
     """
-    This function gives the competition name
+    Gives the competition name
     """
     competition_element = soup.find(class_=config["COMPETITION"])
     competition_info = competition_element.text.strip() if competition_element else None
@@ -48,7 +48,7 @@ def competition_name(soup):
 
 def date_element(soup):
     """
-    This function gives the date of the game
+    Gives the date of the game
     """
     date_element = soup.find(class_=config["DATE"])
     match_date = date_element.text.strip() if date_element else None
@@ -57,7 +57,7 @@ def date_element(soup):
 
 def team_1(soup):
     """
-    This function finds the team name 1
+    Finds the team name 1
     """
     team_elements = soup.find_all(config["DIV"], class_=[config["PARTICIPANT"], config["OVERFLOW"]])
     team1_name = team_elements[0].text.strip() if team_elements else None
@@ -66,7 +66,7 @@ def team_1(soup):
 
 def team_2(soup):
     """
-    This function finds the team name 2
+    Finds the team name 2
     """
     team_elements = soup.find_all(config["DIV"], class_=[config["PARTICIPANT"], config["OVERFLOW"]])
     team2_name = team_elements[1].text.strip() if team_elements else None
@@ -75,7 +75,7 @@ def team_2(soup):
 
 def score_a(soup):
     """
-    This function finds score_a
+    Finds score_a
 
     """
 
@@ -87,7 +87,7 @@ def score_a(soup):
 
 def score_b(soup):
     """
-    This function finds score_b
+    Finds score_b
     """
     score_element = soup.find(class_=config["SCORE"])
     score_text = score_element.text.strip() if score_element else None
@@ -96,24 +96,36 @@ def score_b(soup):
 
 
 def bet_winner_home(soup):
+    """
+    Finds the win bet for the home player
+    """
     odds_elements = soup.find_all(class_=config["ODDS"])
     bet_winner_home = odds_elements[0].text.strip() if odds_elements else None
     return bet_winner_home
 
 
 def bet_draw(soup):
+    """
+    Finds the draw bet
+    """
     odds_elements = soup.find_all(class_=config["ODDS"])
     bet_draw = odds_elements[1].text.strip() if odds_elements else None
     return bet_draw
 
 
 def bet_winner_away(soup):
+    """
+    Finds the win bet for the away player
+    """
     odds_elements = soup.find_all(class_=config["ODDS"])
     bet_winner_away = odds_elements[2].text.strip() if odds_elements else None
     return bet_winner_away
 
 
 def stat(soup):
+    """
+    Finds all the stats of the game
+    """
     stat_rows = soup.find_all(class_=config["STAT_CATEGORY"])
     stat_data = []
     for row in stat_rows:
@@ -131,10 +143,13 @@ def stat(soup):
     return stat_data
 
 def get_match_all_games(my_url):
+    """
+    Finds all the result URLs and returns it as a list
+    """
     try:
         team_links = []
         soup = beautiful_soup(my_url)
-        image_cells = soup.find_all(class_="tableCellParticipant__image")
+        image_cells = soup.find_all(class_=config["ALL_GAMES"])
         for cell in image_cells:
             href = cell.get('href')
             team_links.append('https://www.flashscore.com' + href + "results/")
@@ -151,6 +166,9 @@ def get_match_all_games(my_url):
 
 
 def get_match_data(url):
+    """
+    Returns all the information of a game
+    """
     parse = beautiful_soup(url)
     team1_name = team_1(parse)
     competition_info = competition_name(parse)
@@ -166,13 +184,16 @@ def get_match_data(url):
 
 
 def get_match_page(list_urls):
+    """
+    Find the list of the last 20 games of a team
+    """
     match_game = []
 
     for url_ele in list_urls:
         try:
             soup = beautiful_soup(url_ele)
-            info = soup.find_all(class_=["event__match event__match--static event__match--last event__match--twoLine",
-                                         "event__match event__match--static event__match--twoLine"])
+            info = soup.find_all(class_=[config["GET_MATCH_PAGE"],
+                                         config["GET_MATCH_PAGE_2"]])
             for cell in info:
                 match_id = cell.get('id')
                 if match_id is not None:
@@ -226,8 +247,6 @@ def write_to_csv(my_file, match_data, stat_data):
         print(f"Error in write_to_csv: {e}")
 
 
-
-
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Scrape football match data from flashscore.com. "
                                                  "By default, it will scrape all matches. "
@@ -238,7 +257,7 @@ def parse_arguments():
     parser.add_argument('--mode', choices=['all', 'date_range'], default='all',
                         help="Choose scraping mode: 'all' to scrape everything or 'date_range' to scrape matches within a specific date range (default: %(default)s)")
     parser.add_argument('--date-range', nargs=2, metavar=("START_DATE", "END_DATE"),
-                        help="Scrape only matches played between START_DATE and END_DATE, in format YYYY-MM-DD (requires '--mode date_range')")
+                        help="Scrape only matches played between START_DATE and END_DATE, in format 'DD.MM.YYYY HH:MM'  (requires '--mode date_range')")
 
     return parser.parse_args()
 
@@ -265,9 +284,9 @@ def main():
                     # Check if the match is within the specified date range, if required
                     if args.mode == 'date_range' and args.date_range:
                         start_date, end_date = args.date_range
-                        start_date = datetime.strptime(start_date, "%Y-%m-%d")
-                        end_date = datetime.strptime(end_date, "%Y-%m-%d")
-                        match_date = datetime.strptime(game_match_data[2], "%Y-%m-%d")
+                        start_date = datetime.strptime(start_date, config["DATE_FORMAT"])
+                        end_date = datetime.strptime(end_date, config["DATE_FORMAT"])
+                        match_date = datetime.strptime(game_match_data[2], config["DATE_FORMAT"])
                         if not (start_date <= match_date <= end_date):
                             continue
 
