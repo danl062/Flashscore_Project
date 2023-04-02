@@ -257,7 +257,7 @@ def parse_arguments():
     parser.add_argument('--mode', choices=['all', 'date_range'], default='all',
                         help="Choose scraping mode: 'all' to scrape everything or 'date_range' to scrape matches within a specific date range (default: %(default)s)")
     parser.add_argument('--date-range', nargs=2, metavar=("START_DATE", "END_DATE"),
-                        help="Scrape only matches played between START_DATE and END_DATE, in format 'DD.MM.YYYY HH:MM'  (requires '--mode date_range')")
+                        help="Scrape only matches played between START_DATE and END_DATE, in format YYYY-MM-DD (requires '--mode date_range')")
 
     return parser.parse_args()
 
@@ -287,9 +287,9 @@ def main():
                         start_date = datetime.strptime(start_date, config["DATE_FORMAT"])
                         end_date = datetime.strptime(end_date, config["DATE_FORMAT"])
                         match_date = datetime.strptime(game_match_data[2], config["DATE_FORMAT"])
-                        if not (start_date <= match_date <= end_date):
+                        if not(start_date <= match_date <= end_date):
                             continue
-
+                    
                     write_to_csv(file_name, game_match_data, game_stat_data)
             except Exception as e:
                 print(f"Error in main (processing team {index}): {e}")

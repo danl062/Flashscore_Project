@@ -1,83 +1,73 @@
 import pymysql
 
-# Establish a connection to the MySQL server
+# Établir une connexion avec le serveur MySQL
 conn = pymysql.connect(
  host="localhost",
  user="root",
- password="30030705EasG:",
+ password="insert your own password",
  database="Flashscore"
 )
 
 cursor = conn.cursor()
 
-# Create the table Team
+# Créer la table Team
 cursor.execute("CREATE TABLE IF NOT EXISTS Team ("
                "id INT NOT NULL AUTO_INCREMENT,"
-               "Team_name VARCHAR(255) NOT NULL,"
+               "name VARCHAR(255) NOT NULL,"
                "PRIMARY KEY (id)"
                ")")
 
-# Create the table Competition
+# Créer la table Competition
 cursor.execute("CREATE TABLE IF NOT EXISTS Competition ("
                "id INT NOT NULL AUTO_INCREMENT,"
-               "Competition_name VARCHAR(255) NOT NULL,"
+               "name VARCHAR(255) NOT NULL,"
                "PRIMARY KEY (id)"
                ")")
 
-
-# Create the table Stat
-cursor.execute("CREATE TABLE IF NOT EXISTS Stat ("
+# Créer la table Stat
+cursor.execute("CREATE TABLE IF NOT EXISTS Stat2 ("
                "id INT NOT NULL AUTO_INCREMENT,"
-               "Expected_Goals FLOAT,"
-               "Ball_Possession FLOAT,"
-               "Goal_Attempts INT,"
-               "Shots_on_Goal INT,"
-               "Shots_off_Goal INT,"
-               "Blocked_shots INT,"
-               "Free_kicks INT,"
-               "Corner_kicks INT,"
-               "Offsides INT,"
-               "Throw_in INT,"
-               "Goalkeeper_saves INT,"
-               "Fouls INT,"
-               "Yellow_cards INT,"
-               "Red_cards INT,"
-               "Total_passes INT,"
-               "Completed_passes INT,"
-               "Tackles INT,"
-               "Attacks INT,"
-               "Dangerous_attacks INT,"
+               "expected_goals_home FLOAT,"
+               "expected_goals_away FLOAT,"
+               "ball_possession_home VARCHAR(255),"
+               "ball_possession_away VARCHAR(255),"
+               "goal_attempts_home INT,"
+               "goal_attempts_away INT,"
+               "shots_on_goal_home INT,"
+               "shots_on_goal_away INT,"
+               "shots_off_goal_home INT,"
+               "shots_off_goal_away INT,"
                "PRIMARY KEY (id)"
                ")")
 
-# Create the table Matchs
-cursor.execute("CREATE TABLE IF NOT EXISTS Matchs ("
+# Créer la table Odds
+cursor.execute("CREATE TABLE IF NOT EXISTS Odds ("
                "id INT NOT NULL AUTO_INCREMENT,"
-               "match_date VARCHAR(255) NOT NULL,"
+               "home_win_odds FLOAT NOT NULL,"
+               "draw_odds FLOAT NOT NULL,"
+               "away_win_odds FLOAT NOT NULL,"
+               "PRIMARY KEY (id)"
+               ")")
+
+# Créer la table Match
+cursor.execute("CREATE TABLE IF NOT EXISTS `Game` ("
+               "id INT NOT NULL AUTO_INCREMENT,"
+               "date VARCHAR(255) NOT NULL,"
                "competition_id INT NOT NULL,"
+               "odds_id INT NOT NULL,"
                "team1_id INT NOT NULL,"
                "team2_id INT NOT NULL,"
-               "home_stat_id INT NOT NULL,"
-               "away_stat_id INT NOT NULL,"
+               "stat_id INT NOT NULL,"
                "score1 INT,"
                "score2 INT,"
                "PRIMARY KEY (id),"
                "FOREIGN KEY (competition_id) REFERENCES Competition(id),"
+               "FOREIGN KEY (odds_id) REFERENCES Odds(id),"
                "FOREIGN KEY (team1_id) REFERENCES Team(id),"
                "FOREIGN KEY (team2_id) REFERENCES Team(id),"
-               "FOREIGN KEY (home_stat_id) REFERENCES Stat(id),"
-               "FOREIGN KEY (away_stat_id) REFERENCES Stat(id)"
+               "FOREIGN KEY (stat_id) REFERENCES Stat(id)"
                ")")
 
-# Create the table Odds
-cursor.execute("CREATE TABLE IF NOT EXISTS Odds ("
-               "id INT NOT NULL AUTO_INCREMENT,"
-               "match_id INT NOT NULL,"
-               "home_bet_winner FLOAT NOT NULL,"
-               "draw_bet FLOAT NOT NULL,"
-               "away_bet_winner FLOAT NOT NULL,"
-               "PRIMARY KEY (id),"
-               "FOREIGN KEY (match_id) REFERENCES Matchs(id)"
-               ")")
+
 
 conn.close()
