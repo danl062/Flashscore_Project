@@ -1,26 +1,23 @@
 import time
 from selenium import webdriver
 from bs4 import BeautifulSoup
-import csv
 import re
 import json
-import argparse
-from datetime import datetime
-import pymysql
-import random
 import pymysql
 
 
 conn = pymysql.connect(
  host="localhost",
  user="root",
- password="raphaeld17",
+ password="30030705EasG:",
  database="Flashscore"
 )
 
 cursor = conn.cursor()
 
 link = "https://www.flashscore.com/match/ziIMHEan/#/match-summary/match-statistics/0"
+
+
 
 def beautiful_soup(url):
     """
@@ -45,7 +42,7 @@ def read_config(config_file):
     return config
 
 
-config = read_config('/Users/raphaeldelouya/Desktop/WebScrapping/my_json.json')
+config = read_config('my_json.json')
 
 def competition_name(soup):
     """
@@ -186,7 +183,7 @@ def insert_competition_name(competition_info, cursor):
         cursor.execute(query, values)
         conn.commit()
         existing_competition = cursor.lastrowid
-    return existing_competition[0] if existing_competition else None
+    return existing_competition if existing_competition else None
 
 def insert_odds(odds,cursor):
     cursor.execute("SELECT id FROM Odds WHERE home_win_odds = %s AND draw_odds = %s AND away_win_odds = %s", odds)
@@ -199,7 +196,7 @@ def insert_odds(odds,cursor):
         last_row = cursor.lastrowid
         return last_row
     else:
-        return existing_odds[0]
+        return existing_odds
 
 def insert_name(name,cursor):
     cursor.execute("SELECT id FROM Team WHERE name = %s", name)
@@ -212,20 +209,20 @@ def insert_name(name,cursor):
         last_row = cursor.lastrowid
         return last_row
     else:
-        return existing_name[0]
+        return existing_name
 
 def insert_stats(stats, cursor):
     cursor.execute("SELECT id FROM Stat WHERE expected_goals_home = %s", stats[0])
     existing_id = cursor.fetchone()
     if existing_id is None:
-        query = "INSERT INTO Stat2 (expected_goals_home, expected_goals_away, ball_possession_home, ball_possession_away, goal_attempts_home, goal_attempts_away,shots_on_goal_home,shots_on_goal_away,shots_off_goal_home,shots_off_goal_away) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
+        query = "INSERT INTO Stat (expected_goals_home, expected_goals_away, ball_possession_home, ball_possession_away, goal_attempts_home, goal_attempts_away,shots_on_goal_home,shots_on_goal_away,shots_off_goal_home,shots_off_goal_away) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
         values = (stats[0],stats[1],stats[2],stats[3], int(stats[4]), int(stats[5]), int(stats[6]), int(stats[7]), int(stats[8]), int(stats[9]))
         cursor.execute(query, values)
         conn.commit()
         last_row = cursor.lastrowid
         return last_row
     else:
-        return existing_id[0]
+        return existing_id
 
 def insert_match(match_info, cursor):
     query = "SELECT id FROM Game WHERE date=%s AND competition_id=%s AND odds_id=%s AND team1_id=%s AND team2_id=%s AND stat_id=%s AND score1=%s AND score2=%s"
@@ -237,44 +234,103 @@ def insert_match(match_info, cursor):
         query = "INSERT INTO Game (date, competition_id, odds_id, team1_id, team2_id, stat_id, score1, score2) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
         values = (match_info[0],match_info[1],match_info[2], match_info[3],match_info[4],match_info[5],match_info[6],match_info[7])
         cursor.execute(query, values)
+    conn.commit()
+
+def get_match_all_games(my_url):
+    """
+    Finds all the result URLs and returns it as a list
+    """
+    try:
+        team_links = []
+        soup = beautiful_soup(my_url)
+        image_cells = soup.find_all(class_=config["ALL_GAMES"])
+        for cell in image_cells:
+            href = cell.get('href')
+            team_links.append('https://www.flashscore.com' + href + "results/")
+
+        with open("team_urls.txt", "w") as file:
+            for link in team_links:
+                file.write(link + "\n")
+
+    except Exception as e:
+        print(f"Error in get_match_all_games: {e}")
+        team_links = []
+
+    return team_links
+
+def get_match_page(list_urls):
+    """
+    Find the list of the last 20 games of a team
+    """
+    match_game = []
+
+    for url_ele in list_urls:
+        try:
+            soup = beautiful_soup(url_ele)
+            info = soup.find_all(class_=[config["GET_MATCH_PAGE"],
+                                         config["GET_MATCH_PAGE_2"]])
+            for cell in info:
+                match_id = cell.get('id')
+                if match_id is not None:
+                    link = "https://www.flashscore.com/match/" + match_id[4:] + "/#/match-summary/match-statistics/0"
+                    match_game.append(link)
+        except Exception as e:
+            print(f"Error in get_match_page: {e}")
+
+    return match_game[:20]
 
 
 def main():
-    url = beautiful_soup("https://www.flashscore.com/match/Y5C9gS5P/#/match-summary/match-statistics/0")
+    try:
+        url = "https://www.flashscore.com/football/europe/champions-league/standings/#/ULMctLS6/table/home"
+        team_links = get_match_all_games(url)
 
-    date = date_element(url)
+        for index, team_url in enumerate(team_links):
+            try:
+                match_links = get_match_page([team_url])
+                team_name = re.search(r'team/(.*?)/', team_url).group(1)
+                print("Starting processing for team", team_name)
 
-    competition_1 = competition_name(url)
-    comp_id = insert_competition_name(competition_1, cursor)
-    print(comp_id)
+                for match_url in match_links:
+                    try:
+                        soup = beautiful_soup(match_url)
 
-    odds_1 = [bet_winner_home(url), bet_draw(url), bet_winner_away(url)]
-    odds_id = insert_odds(odds_1, cursor)
-    print(odds_id)
+                        # Extract match data
+                        date = date_element(soup)
+                        comp_name = competition_name(soup)
+                        odds = [bet_winner_home(soup), bet_draw(soup), bet_winner_away(soup)]
+                        team_a = team_1(soup)
+                        team_b = team_2(soup)
+                        stat_data = stat(soup)
+                        stats = stat_arrange(stat_data)
+                        score_1 = score_a(soup)
+                        score_2 = score_b(soup)
 
-    team_a = team_1(url)
-    team_b = team_2(url)
+                        # Insert data into database
+                        comp_id = insert_competition_name(comp_name, cursor)
+                        odds_id = insert_odds(odds, cursor)
+                        team_a_id = insert_name(team_a, cursor)
+                        team_b_id = insert_name(team_b, cursor)
+                        stat_id = insert_stats(stats, cursor)
+                        match_info = [date, comp_id, odds_id, team_a_id, team_b_id, stat_id, score_1, score_2]
+                        insert_match(match_info, cursor)
 
-    team_a_id = insert_name(team_a, cursor)
-    team_b_id = insert_name(team_b, cursor)
-    print(team_a_id)
-    print(team_b_id)
+                    except Exception as e:
+                        print(f"Error processing URL {match_url}: {e}")
 
-    my_stat = stat(url)
-    test = stat_arrange(my_stat)
+                print("Finished processing for team", team_name)
 
-    stat_id = insert_stats(test, cursor)
-    print(stat_id)
+            except Exception as e:
+                print(f"Error processing team {team_name}: {e}")
 
-    score_1 = score_a(url)
-    score_2 = score_b(url)
-
-    #match_info = [date, comp_id, odds_id, team_a_id, team_b_id, stat_id, score_1, score_2]
-    #print(match_info)
-    #insert_match(match_info, cursor) (TOO LONG TO RUN - WE DIDN'T SUCCEED YET)
+    except Exception as e:
+        print(f"Error in main: {e}")
 
     cursor.close()
     conn.close()
+
+
+
 
 
 if __name__ == '__main__':

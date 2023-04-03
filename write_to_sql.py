@@ -4,7 +4,7 @@ import pymysql
 conn = pymysql.connect(
  host="localhost",
  user="root",
- password="insert your own password",
+ password="30030705EasG:",
  database="Flashscore"
 )
 
@@ -25,7 +25,7 @@ cursor.execute("CREATE TABLE IF NOT EXISTS Competition ("
                ")")
 
 # Créer la table Stat
-cursor.execute("CREATE TABLE IF NOT EXISTS Stat2 ("
+cursor.execute("CREATE TABLE IF NOT EXISTS Stat ("
                "id INT NOT NULL AUTO_INCREMENT,"
                "expected_goals_home FLOAT,"
                "expected_goals_away FLOAT,"
@@ -50,7 +50,7 @@ cursor.execute("CREATE TABLE IF NOT EXISTS Odds ("
                ")")
 
 # Créer la table Match
-cursor.execute("CREATE TABLE IF NOT EXISTS `Game` ("
+cursor.execute("CREATE TABLE IF NOT EXISTS Game ("
                "id INT NOT NULL AUTO_INCREMENT,"
                "date VARCHAR(255) NOT NULL,"
                "competition_id INT NOT NULL,"
