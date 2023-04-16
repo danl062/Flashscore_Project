@@ -4,7 +4,7 @@ import pymysql
 conn = pymysql.connect(
  host="localhost",
  user="root",
- password="raphaeld17",
+ password="YOUR PASSWORD",
  database="Flashscore"
 )
 
