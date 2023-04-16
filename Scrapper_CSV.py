@@ -142,6 +142,7 @@ def stat(soup):
             stat_data.append((home_value_text, category_name_text, away_value_text))
     return stat_data
 
+
 def get_match_all_games(my_url):
     """
     Finds all the result URLs and returns it as a list
@@ -180,7 +181,8 @@ def get_match_data(url):
     bet_draw_value = bet_draw(parse)
     bet_away = bet_winner_away(parse)
     stat_data = stat(parse)
-    return team1_name, competition_info, match_date, team2_name, score1, score2, bet_home, bet_draw_value, bet_away, stat_data
+    return team1_name, competition_info, match_date, team2_name, score1, score2, bet_home, \
+        bet_draw_value, bet_away, stat_data
 
 
 def get_match_page(list_urls):
@@ -252,12 +254,15 @@ def parse_arguments():
                                                  "By default, it will scrape all matches. "
                                                  "Use the appropriate arguments to customize the scraping process.")
     parser.add_argument('--url', type=str,
-                        default="https://www.flashscore.com/football/europe/champions-league/standings/#/ULMctLS6/table/home",
+                        default="https://www.flashscore.com/football/europe/champions-league/standings/#/ULMctLS6"
+                                "/table/home",
                         help="URL of the football league standings page (default: %(default)s)")
     parser.add_argument('--mode', choices=['all', 'date_range'], default='all',
-                        help="Choose scraping mode: 'all' to scrape everything or 'date_range' to scrape matches within a specific date range (default: %(default)s)")
+                        help="Choose scraping mode: 'all' to scrape everything or 'date_range' to scrape matches "
+                             "within a specific date range (default: %(default)s)")
     parser.add_argument('--date-range', nargs=2, metavar=("START_DATE", "END_DATE"),
-                        help="Scrape only matches played between START_DATE and END_DATE, in format YYYY-MM-DD (requires '--mode date_range')")
+                        help="Scrape only matches played between START_DATE and END_DATE, in format YYYY-MM-DD ("
+                             "requires '--mode date_range')")
 
     return parser.parse_args()
 
@@ -287,9 +292,9 @@ def main():
                         start_date = datetime.strptime(start_date, config["DATE_FORMAT"])
                         end_date = datetime.strptime(end_date, config["DATE_FORMAT"])
                         match_date = datetime.strptime(game_match_data[2], config["DATE_FORMAT"])
-                        if not(start_date <= match_date <= end_date):
+                        if not (start_date <= match_date <= end_date):
                             continue
-                    
+
                     write_to_csv(file_name, game_match_data, game_stat_data)
             except Exception as e:
                 print(f"Error in main (processing team {index}): {e}")

@@ -223,7 +223,9 @@ def insert_stats(stats, cursor):
     cursor.execute("SELECT id FROM Stat WHERE expected_goals_home = %s", stats[0])
     existing_id = cursor.fetchone()
     if existing_id is None:
-        query = "INSERT INTO Stat (expected_goals_home, expected_goals_away, ball_possession_home, ball_possession_away, goal_attempts_home, goal_attempts_away,shots_on_goal_home,shots_on_goal_away,shots_off_goal_home,shots_off_goal_away) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
+        query = "INSERT INTO Stat (expected_goals_home, expected_goals_away, ball_possession_home, " \
+                "ball_possession_away, goal_attempts_home, goal_attempts_away,shots_on_goal_home,shots_on_goal_away," \
+                "shots_off_goal_home,shots_off_goal_away) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         values = (stats[0], stats[1], stats[2], stats[3], int(stats[4]), int(stats[5]), int(stats[6]), int(stats[7]),
                   int(stats[8]), int(stats[9]))
         cursor.execute(query, values)
@@ -235,14 +237,16 @@ def insert_stats(stats, cursor):
 
 
 def insert_match(match_info, cursor):
-    query = "SELECT id FROM Game WHERE date=%s AND competition_id=%s AND odds_id=%s AND team1_id=%s AND team2_id=%s AND stat_id=%s AND score1=%s AND score2=%s"
+    query = "SELECT id FROM Game WHERE date=%s AND competition_id=%s AND odds_id=%s AND team1_id=%s AND team2_id=%s " \
+            "AND stat_id=%s AND score1=%s AND score2=%s"
     values = (match_info[0], match_info[1], match_info[2], match_info[3], match_info[4], match_info[5], match_info[6],
               match_info[7])
     cursor.execute(query, values)
     existing_match = cursor.fetchone()
 
     if existing_match is None:
-        query = "INSERT INTO Game (date, competition_id, odds_id, team1_id, team2_id, stat_id, score1, score2) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+        query = "INSERT INTO Game (date, competition_id, odds_id, team1_id, team2_id, stat_id, score1, score2) " \
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
         values = (
             match_info[0], match_info[1], match_info[2], match_info[3], match_info[4], match_info[5], match_info[6],
             match_info[7])
