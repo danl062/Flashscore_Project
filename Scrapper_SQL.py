@@ -5,18 +5,16 @@ import re
 import json
 import pymysql
 
-
 conn = pymysql.connect(
- host="localhost",
- user="root",
- password="30030705EasG:",
- database="Flashscore"
+    host="localhost",
+    user="root",
+    password="raphaeld17",
+    database="Flashscore"
 )
 
 cursor = conn.cursor()
 
 link = "https://www.flashscore.com/match/ziIMHEan/#/match-summary/match-statistics/0"
-
 
 
 def beautiful_soup(url):
@@ -32,6 +30,7 @@ def beautiful_soup(url):
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     return soup
 
+
 def read_config(config_file):
     """
     Read the configuration from a JSON file and return the configuration as
@@ -44,6 +43,7 @@ def read_config(config_file):
 
 config = read_config('my_json.json')
 
+
 def competition_name(soup):
     """
     Gives the competition name
@@ -51,6 +51,7 @@ def competition_name(soup):
     competition_element = soup.find(class_=config["COMPETITION"])
     competition_info = competition_element.text.strip() if competition_element else None
     return competition_info
+
 
 def bet_winner_home(soup):
     """
@@ -78,6 +79,7 @@ def bet_winner_away(soup):
     bet_winner_away = odds_elements[2].text.strip() if odds_elements else None
     return bet_winner_away
 
+
 def team_1(soup):
     """
     Finds the team name 1
@@ -94,6 +96,7 @@ def team_2(soup):
     team_elements = soup.find_all(config["DIV"], class_=[config["PARTICIPANT"], config["OVERFLOW"]])
     team2_name = team_elements[1].text.strip() if team_elements else None
     return team2_name
+
 
 def score_a(soup):
     """
@@ -163,6 +166,7 @@ def stat_arrange(stat_data):
 
     return new_list
 
+
 def date_element(soup):
     """
     Gives the date of the game
@@ -170,6 +174,7 @@ def date_element(soup):
     date_element = soup.find(class_=config["DATE"])
     match_date = date_element.text.strip() if date_element else None
     return match_date
+
 
 def insert_competition_name(competition_info, cursor):
     """
@@ -185,7 +190,8 @@ def insert_competition_name(competition_info, cursor):
         existing_competition = cursor.lastrowid
     return existing_competition if existing_competition else None
 
-def insert_odds(odds,cursor):
+
+def insert_odds(odds, cursor):
     cursor.execute("SELECT id FROM Odds WHERE home_win_odds = %s AND draw_odds = %s AND away_win_odds = %s", odds)
     existing_odds = cursor.fetchone()
     if existing_odds is None:
@@ -198,7 +204,8 @@ def insert_odds(odds,cursor):
     else:
         return existing_odds
 
-def insert_name(name,cursor):
+
+def insert_name(name, cursor):
     cursor.execute("SELECT id FROM Team WHERE name = %s", name)
     existing_name = cursor.fetchone()
     if existing_name is None:
@@ -211,12 +218,14 @@ def insert_name(name,cursor):
     else:
         return existing_name
 
+
 def insert_stats(stats, cursor):
     cursor.execute("SELECT id FROM Stat WHERE expected_goals_home = %s", stats[0])
     existing_id = cursor.fetchone()
     if existing_id is None:
         query = "INSERT INTO Stat (expected_goals_home, expected_goals_away, ball_possession_home, ball_possession_away, goal_attempts_home, goal_attempts_away,shots_on_goal_home,shots_on_goal_away,shots_off_goal_home,shots_off_goal_away) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
-        values = (stats[0],stats[1],stats[2],stats[3], int(stats[4]), int(stats[5]), int(stats[6]), int(stats[7]), int(stats[8]), int(stats[9]))
+        values = (stats[0], stats[1], stats[2], stats[3], int(stats[4]), int(stats[5]), int(stats[6]), int(stats[7]),
+                  int(stats[8]), int(stats[9]))
         cursor.execute(query, values)
         conn.commit()
         last_row = cursor.lastrowid
@@ -224,17 +233,22 @@ def insert_stats(stats, cursor):
     else:
         return existing_id
 
+
 def insert_match(match_info, cursor):
     query = "SELECT id FROM Game WHERE date=%s AND competition_id=%s AND odds_id=%s AND team1_id=%s AND team2_id=%s AND stat_id=%s AND score1=%s AND score2=%s"
-    values = (match_info[0],match_info[1],match_info[2],match_info[3],match_info[4],match_info[5],match_info[6],match_info[7])
+    values = (match_info[0], match_info[1], match_info[2], match_info[3], match_info[4], match_info[5], match_info[6],
+              match_info[7])
     cursor.execute(query, values)
     existing_match = cursor.fetchone()
 
     if existing_match is None:
         query = "INSERT INTO Game (date, competition_id, odds_id, team1_id, team2_id, stat_id, score1, score2) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-        values = (match_info[0],match_info[1],match_info[2], match_info[3],match_info[4],match_info[5],match_info[6],match_info[7])
+        values = (
+            match_info[0], match_info[1], match_info[2], match_info[3], match_info[4], match_info[5], match_info[6],
+            match_info[7])
         cursor.execute(query, values)
     conn.commit()
+
 
 def get_match_all_games(my_url):
     """
@@ -257,6 +271,7 @@ def get_match_all_games(my_url):
         team_links = []
 
     return team_links
+
 
 def get_match_page(list_urls):
     """
@@ -328,9 +343,6 @@ def main():
 
     cursor.close()
     conn.close()
-
-
-
 
 
 if __name__ == '__main__':
