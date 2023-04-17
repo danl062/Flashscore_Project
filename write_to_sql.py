@@ -1,10 +1,10 @@
 import pymysql
 
 conn = pymysql.connect(
- host="localhost",
- user="root",
- password="MY PASSWORD",
- database="Flashscore"
+    host="localhost",
+    user="root",
+    password="MY PASSWORD",
+    database="Flashscore"
 )
 
 cursor = conn.cursor()
@@ -63,7 +63,5 @@ cursor.execute("CREATE TABLE IF NOT EXISTS Game ("
                "FOREIGN KEY (team2_id) REFERENCES Team(id),"
                "FOREIGN KEY (stat_id) REFERENCES Stat(id)"
                ")")
-
-
 
 conn.close()

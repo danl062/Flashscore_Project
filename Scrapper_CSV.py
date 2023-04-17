@@ -7,8 +7,6 @@ import json
 import argparse
 from datetime import datetime
 
-config = {}
-
 
 def read_config(config_file):
     """
