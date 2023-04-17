@@ -16,8 +16,8 @@ def read_config(config_file):
     a dictionary.
     """
     with open(config_file, 'r') as f:
-        config = json.load(f)
-    return config
+        my_config = json.load(f)
+    return my_config
 
 
 config = read_config('my_json.json')
@@ -50,8 +50,8 @@ def date_element(soup):
     """
     Gives the date of the game
     """
-    date_element = soup.find(class_=config["DATE"])
-    match_date = date_element.text.strip() if date_element else None
+    match_date = soup.find(class_=config["DATE"])
+    match_date = match_date.text.strip() if match_date else None
     return match_date
 
 
@@ -100,8 +100,8 @@ def bet_winner_home(soup):
     Finds the win bet for the home player
     """
     odds_elements = soup.find_all(class_=config["ODDS"])
-    bet_winner_home = odds_elements[0].text.strip() if odds_elements else None
-    return bet_winner_home
+    odds_winner_home = odds_elements[0].text.strip() if odds_elements else None
+    return odds_winner_home
 
 
 def bet_draw(soup):
@@ -109,8 +109,8 @@ def bet_draw(soup):
     Finds the draw bet
     """
     odds_elements = soup.find_all(class_=config["ODDS"])
-    bet_draw = odds_elements[1].text.strip() if odds_elements else None
-    return bet_draw
+    odds_draw = odds_elements[1].text.strip() if odds_elements else None
+    return odds_draw
 
 
 def bet_winner_away(soup):
@@ -118,8 +118,8 @@ def bet_winner_away(soup):
     Finds the win bet for the away player
     """
     odds_elements = soup.find_all(class_=config["ODDS"])
-    bet_winner_away = odds_elements[2].text.strip() if odds_elements else None
-    return bet_winner_away
+    odds_winner_away = odds_elements[2].text.strip() if odds_elements else None
+    return odds_winner_away
 
 
 def stat(soup):
@@ -206,6 +206,7 @@ def get_match_page(list_urls):
 
     return match_game[:20]
 
+
 def get_header(desired_stats):
     """
     Returns a list of column headers for a data frame containing
@@ -216,6 +217,7 @@ def get_header(desired_stats):
         header.append(stat_name + ' Home')
         header.append(stat_name + ' Away')
     return header
+
 
 def get_stats_dict(desired_stats, stat_data):
     """
@@ -229,6 +231,7 @@ def get_stats_dict(desired_stats, stat_data):
                 stats_dict[stat_name] = {'Home': home, 'Away': away}
                 break
     return stats_dict
+
 
 def get_row_data(match_data, desired_stats, stats_dict):
     """
@@ -246,6 +249,7 @@ def get_row_data(match_data, desired_stats, stats_dict):
         row_data.append(home_value if home_value else '0')
         row_data.append(away_value if away_value else '0')
     return row_data
+
 
 def write_to_csv(my_file, match_data, stat_data):
     """
