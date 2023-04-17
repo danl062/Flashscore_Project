@@ -206,45 +206,61 @@ def get_match_page(list_urls):
 
     return match_game[:20]
 
+def get_header(desired_stats):
+    """
+    Returns a list of column headers for a data frame containing
+    home and away statistics for each desired statistic.
+    """
+    header = config["HEADER"]
+    for stat_name in desired_stats:
+        header.append(stat_name + ' Home')
+        header.append(stat_name + ' Away')
+    return header
+
+def get_stats_dict(desired_stats, stat_data):
+    """
+    Returns a dictionary of statistics for each desired statistic.
+    """
+    stats_dict = {}
+    for home, cat_name, away in stat_data:
+        category_name = re.sub(r'[^\w\s]', '', cat_name.strip())
+        for stat_name in desired_stats:
+            if stat_name in category_name:
+                stats_dict[stat_name] = {'Home': home, 'Away': away}
+                break
+    return stats_dict
+
+def get_row_data(match_data, desired_stats, stats_dict):
+    """
+    Returns a list of data for a single row in a data frame.
+    """
+    row_data = list(match_data)
+    for stat_name in desired_stats:
+        if stat_name in stats_dict:
+            home_value = stats_dict[stat_name]['Home']
+            away_value = stats_dict[stat_name]['Away']
+        else:
+            home_value = '0'
+            away_value = '0'
+
+        row_data.append(home_value if home_value else '0')
+        row_data.append(away_value if away_value else '0')
+    return row_data
 
 def write_to_csv(my_file, match_data, stat_data):
+    """
+     Writes match and statistic data to a CSV file.
+    """
     try:
         desired_stats = config["DESIRED_STATS"]
-
         with open(my_file, mode='a', newline='', encoding='utf-8') as file:
             writer = csv.writer(file)
-
             if file.tell() == 0:
-                header = config["HEADER"]
-                for stat_name in desired_stats:
-                    header.append(stat_name + ' Home')
-                    header.append(stat_name + ' Away')
+                header = get_header(desired_stats)
                 writer.writerow(header)
-
-            row_data = list(match_data)
-
-            stats_dict = {}
-            for home, cat_name, away in stat_data:
-                category_name = re.sub(r'[^\w\s]', '', cat_name.strip())
-
-                for stat_name in desired_stats:
-                    if stat_name in category_name:
-                        stats_dict[stat_name] = {'Home': home, 'Away': away}
-                        break
-
-            for stat_name in desired_stats:
-                if stat_name in stats_dict:
-                    home_value = stats_dict[stat_name]['Home']
-                    away_value = stats_dict[stat_name]['Away']
-                else:
-                    home_value = '0'
-                    away_value = '0'
-
-                row_data.append(home_value if home_value else '0')
-                row_data.append(away_value if away_value else '0')
-
+            stats_dict = get_stats_dict(desired_stats, stat_data)
+            row_data = get_row_data(match_data, desired_stats, stats_dict)
             writer.writerow(row_data)
-
     except Exception as e:
         print(f"Error in write_to_csv: {e}")
 
