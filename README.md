@@ -57,3 +57,51 @@ Usage
 The script uses the Selenium library to interact with the website and the Beautiful Soup library to parse the HTML code. The configuration data is stored in a JSON file, which is read by the script to identify the location of the data on the webpage. The MySQL database connection details are also stored in the script.
 
 The script defines several functions to extract specific pieces of information from the webpage, such as the competition name, the betting odds, the team names, the score, and the statistics of the game. Finally, the extracted data is inserted into the database using SQL queries.
+
+## Part C:
+This script updates the coach column in a MySQL database table named Team. It fetches coach information for each team using the API-Football API and then updates the database.
+
+##### Imports:
+
+* requests: For making HTTP requests to the API.
+* pymysql: For interacting with a MySQL database.
+* difflib.SequenceMatcher: For comparing the similarity of two strings.
+* re: For using regular expressions to remove text inside parentheses.
+* fuzzywuzzy.fuzz and fuzzywuzzy.process: For fuzzy string matching.
+
+##### Functions:
+
+1. coach_exists_in_db(team_name, cursor): Checks if a coach exists for the given team in the database.
+2. update_coach_in_db(team_name, coach_name, cursor): Updates the coach name for the given team in the database.
+3. remove_parentheses_info(name): Removes text inside parentheses from a string.
+4. similar(a, b): Calculates the similarity ratio of two strings using SequenceMatcher.
+5. get_team_id(team_name, api_key): Retrieves the team ID from API-Football using the team name.
+6. get_coach_name(team_id, api_key): Retrieves the coach name for a team using the team ID from API-Football.
+7. check_team_name(api_key, team_name): Checks if the team name exists in API-Football and returns the most similar name if found.
+
+#### Main script:
+
+1. Sets the API key and database connection details.
+2. Connects to the MySQL database and creates a cursor object. 
+3. Checks if the coach column exists in the Team table, if not, adds the column. 
+4. Retrieves a list of team names from the Team table. 
+5. Iterates through each team name and checks if a coach already exists in the database. If not:
+   * Removes text inside parentheses from the team name. 
+   * Checks if the team name exists in API-Football using fuzzy matching. 
+   * If found, retrieves the team ID, coach name and country from API-Football. 
+   * Updates the coach name in the database. 
+6. Closes the cursor and database connection.
+
+#### Output:
+
+The script prints the status of each team as it processes them. After updating the coaches, it prints a table with each team's name and coach name.
+
+#### Warning:
+Do not stop the program! 
+Because we used a free api account, we are allowed to run only a few queries per minute. 
+This is why the code runs queries avoiding the values already put inside, in order to not loose queries for nothing.
+But most of the API responses are: "Status code: 429", meaning that we have exceeded the rate limit per minute for your plan.
+So please do not stop the program before it ends.
+
+
+
