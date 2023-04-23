@@ -1,5 +1,12 @@
 # Web Scraper for Flashscore.com
 This web scraper extracts data on football games from Flashscore.com. Specifically, it collects information on team names, competition names, match dates, scores, betting odds, and statistics for a given game.
+To run the main script, execute `main_scrapper.py`. This script will prompt you to choose which of the following scripts to run:
+
+1. SCRAPPER_CSV.py
+2. SCRAPPER_SQL.py
+3. SCRAPPER_API.py
+
+
 ## Part A:
 ### Requirements
 This code was written in Python 3.8.5 and uses the following libraries:
