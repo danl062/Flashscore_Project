@@ -9,7 +9,7 @@ api_key = "bf15cd0eb6msh5495d524da55f3bp17ca13jsna6b806cbacfe"
 conn = pymysql.connect(
     host="localhost",
     user="root",
-    password="30030705EasG:",
+    password="PASSWORD",
     database="Flashscore"
 )
 

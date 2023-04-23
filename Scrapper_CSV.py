@@ -74,7 +74,6 @@ def team_2(soup):
 def score_a(soup):
     """
     Finds score_a
-
     """
 
     score_element = soup.find(class_=config["SCORE"])
@@ -268,6 +267,9 @@ def write_to_csv(my_file, match_data, stat_data):
 
 
 def parse_arguments():
+    """
+    Parses command line arguments for the football match data scraping script.
+    """
     parser = argparse.ArgumentParser(description="Scrape football match data from flashscore.com. "
                                                  "By default, it will scrape all matches. "
                                                  "Use the appropriate arguments to customize the scraping process.")
@@ -287,36 +289,31 @@ def parse_arguments():
 
 def main():
     args = parse_arguments()
-
     try:
         url = args.url
         team_links = get_match_all_games(url)
 
         for index, team_url in enumerate(team_links):
-            try:
-                match_links = get_match_page([team_url])
-                team_name = re.search(r'team/(.*?)/', team_url).group(1)
-                file_name = f"{team_name}.csv"
-                print("file created")
+            match_links = get_match_page([team_url])
+            team_name = re.search(r'team/(.*?)/', team_url).group(1)
+            file_name = f"{team_name}.csv"
+            print("file created")
 
-                for match_url in match_links:
-                    match_data_all = get_match_data(match_url)
-                    game_match_data = match_data_all[:9]
-                    game_stat_data = match_data_all[9]
+            for match_url in match_links:
+                match_data_all = get_match_data(match_url)
+                game_match_data = match_data_all[:9]
+                game_stat_data = match_data_all[9]
 
-                    # Check if the match is within the specified date range, if required
-                    if args.mode == 'date_range' and args.date_range:
-                        start_date, end_date = args.date_range
-                        start_date = datetime.strptime(start_date, config["DATE_FORMAT"])
-                        end_date = datetime.strptime(end_date, config["DATE_FORMAT"])
-                        match_date = datetime.strptime(game_match_data[2], config["DATE_FORMAT"])
-                        if not (start_date <= match_date <= end_date):
-                            continue
+                # Check if the match is within the specified date range, if required
+                if args.mode == 'date_range' and args.date_range:
+                    start_date, end_date = args.date_range
+                    start_date = datetime.strptime(start_date, config["DATE_FORMAT"])
+                    end_date = datetime.strptime(end_date, config["DATE_FORMAT"])
+                    match_date = datetime.strptime(game_match_data[2], config["DATE_FORMAT"])
+                    if not (start_date <= match_date <= end_date):
+                        continue
 
-                    write_to_csv(file_name, game_match_data, game_stat_data)
-            except Exception as e:
-                print(f"Error in main (processing team {index}): {e}")
-
+                write_to_csv(file_name, game_match_data, game_stat_data)
     except Exception as e:
         print(f"Error in main: {e}")
 
