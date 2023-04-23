@@ -2,7 +2,6 @@ import requests
 import pymysql
 from difflib import SequenceMatcher
 import re
-from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 
 api_key = "bf15cd0eb6msh5495d524da55f3bp17ca13jsna6b806cbacfe"
@@ -32,17 +31,19 @@ cursor.execute("SELECT name FROM Team")
 team_names = [row[0] for row in cursor.fetchall()]
 
 
-def venue_exists_in_db(team_name, cursor):
-    cursor.execute("SELECT venue FROM Team WHERE name = %s", (team_name,))
-    result = cursor.fetchone()
+def venue_exists_in_db(team_name, cursor_db):
+    cursor_db.execute("SELECT venue FROM Team WHERE name = %s", (team_name,))
+    result_venue = cursor_db.fetchone()
 
-    return result is not None and result[0] is not None
+    return result_venue is not None and result_venue[0] is not None
 
-def country_exists_in_db(team_name, cursor):
-    cursor.execute("SELECT country FROM Team WHERE name = %s", (team_name,))
-    result = cursor.fetchone()
 
-    return result is not None and result[0] is not None
+def country_exists_in_db(team_name, cursor_db):
+    cursor_db.execute("SELECT country FROM Team WHERE name = %s", (team_name,))
+    result_country = cursor_db.fetchone()
+
+    return result_country is not None and result_country[0] is not None
+
 
 def remove_parentheses_info(name):
     """
@@ -58,7 +59,7 @@ def similar(a, b):
     return SequenceMatcher(None, a, b).ratio()
 
 
-def extracts_api_name(team_name, api_key):
+def extracts_api_name(team_name, football_api_key):
     """
     Extracts information about a football team from the API-Football API.
     """
@@ -66,7 +67,7 @@ def extracts_api_name(team_name, api_key):
     querystring = {"name": team_name}
     headers = {
         "x-rapidapi-host": "api-football-v1.p.rapidapi.com",
-        "x-rapidapi-key": api_key
+        "x-rapidapi-key": football_api_key
     }
 
     response = requests.request("GET", url, headers=headers, params=querystring)
@@ -74,7 +75,7 @@ def extracts_api_name(team_name, api_key):
     return data
 
 
-def extracts_api_id(team_id, api_key):
+def extracts_api_id(team_id, football_api_key):
     """
     Extracts information about a football team from the API-Football API.
     """
@@ -82,7 +83,7 @@ def extracts_api_id(team_id, api_key):
     querystring = {"id": team_id}
     headers = {
         "x-rapidapi-host": "api-football-v1.p.rapidapi.com",
-        "x-rapidapi-key": api_key
+        "x-rapidapi-key": football_api_key
     }
 
     response = requests.request("GET", url, headers=headers, params=querystring)
@@ -90,11 +91,11 @@ def extracts_api_id(team_id, api_key):
     return data
 
 
-def get_team_id(team_name, api_key):
+def get_team_id(team_name, football_api_key):
     """
     Retrieves the ID of a football team from the API-Football API.
     """
-    data = extracts_api_name(team_name, api_key)
+    data = extracts_api_name(team_name, football_api_key)
     if 'results' in data and data["results"] > 0:
         team_data = data["response"][0]
         team_id = team_data["team"]["id"]
@@ -104,11 +105,11 @@ def get_team_id(team_name, api_key):
         return None
 
 
-def get_venue_name(team_id, api_key):
+def get_venue_name(team_id, football_api_key):
     """
     Retrieves the name of the venue associated with a football team from the API-Football API.
     """
-    data = extracts_api_id(team_id, api_key)
+    data = extracts_api_id(team_id, football_api_key)
     if 'results' in data and data["results"] > 0:
         venue_data = data["response"][0]
         venue_name = venue_data["venue"]['name']
@@ -118,11 +119,11 @@ def get_venue_name(team_id, api_key):
         return None
 
 
-def get_country(team_id, api_key):
+def get_country(team_id, football_api_key):
     """
     Retrieves the country associated with a football team from the API-Football API.
     """
-    data = extracts_api_id(team_id, api_key)
+    data = extracts_api_id(team_id, football_api_key)
     if 'results' in data and data["results"] > 0:
         country_data = data["response"][0]
         country = country_data["team"]['country']
@@ -132,15 +133,15 @@ def get_country(team_id, api_key):
         return None
 
 
-def check_team_name(api_key, team_name):
+def check_team_name(football_api_key, team_name):
     """
     Checks if a football team with the given name exists in the API-Football API.
     """
-    data = extracts_api_name(team_name, api_key)
+    data = extracts_api_name(team_name, football_api_key)
     if 'results' in data and data["results"] > 0:
         team_data = data["response"]
-        team_names = [team["team"]["name"] for team in team_data]
-        team_api_name, score = process.extractOne(team_name, team_names)
+        football_team_names = [team["team"]["name"] for team in team_data]
+        team_api_name, score = process.extractOne(team_name, football_team_names)
         if score >= 30:
             print(f"Found team {team_api_name} in the API")
             return team_api_name
@@ -172,11 +173,11 @@ def update_country(country_name, team):
         print(f"Can't find country for this team {team}")
 
 
-def update_tables(team_names):
+def update_tables(football_team_names):
     """
     Update columns venue and country of table Team
     """
-    for team in team_names:
+    for team in football_team_names:
         try:
             if not venue_exists_in_db(team, cursor) or not country_exists_in_db(team, cursor):
                 team_db_name = remove_parentheses_info(team)
