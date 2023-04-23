@@ -12,13 +12,11 @@ create_tables()
 conn = pymysql.connect(
     host="localhost",
     user="root",
-    password="raphaeld17",
+    password="30030705EasG:",
     database='Flashscore'
 )
 
 cursor = conn.cursor()
-
-LINK = "https://www.flashscore.com/match/ziIMHEan/#/match-summary/match-statistics/0"
 
 
 def beautiful_soup(url):
@@ -46,6 +44,8 @@ def read_config(config_file):
 
 
 config = read_config('my_json.json')
+
+config["MY_LINK"]
 
 
 def competition_name(soup):

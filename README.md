@@ -6,6 +6,8 @@ To run the main script, execute `main_scrapper.py`. This script will prompt you 
 2. SCRAPPER_SQL.py
 3. SCRAPPER_API.py
 
+## Warning:
+You might need to press "2" in order to get more data in the database before using the option "3". The more data you have, the better the experience is ;)
 
 ## Part A:
 ### Requirements

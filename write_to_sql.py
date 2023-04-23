@@ -2,11 +2,10 @@ import pymysql
 
 
 def create_database():
-    print("HELLO")
     conn = pymysql.connect(
         host="localhost",
         user="root",
-        password="raphaeld17",
+        password="30030705EasG:",
     )
     cursor = conn.cursor()
     cursor.execute("CREATE DATABASE IF NOT EXISTS Flashscore")
@@ -18,7 +17,7 @@ def create_tables():
     conn = pymysql.connect(
         host="localhost",
         user="root",
-        password="raphaeld17",
+        password="30030705EasG:",
         database='Flashscore'
     )
 
