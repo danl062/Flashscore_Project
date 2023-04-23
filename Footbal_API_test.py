@@ -65,7 +65,7 @@ def check_team_name(api_key, team_name):
 
 api_key = "c3d583b8e9mshf46699e3f97cf89p1a6541jsnf4d28c806dc8"
 
-# Vérifier les noms d'équipe
+# Check the teams name on the DB
 conn = pymysql.connect(
     host="localhost",
     user="root",
