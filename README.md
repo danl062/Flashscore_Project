@@ -113,4 +113,12 @@ But most of the API responses are: "Status code: 429", meaning that we have exce
 So please do not stop the program before it ends.
 
 
+<hr>
+
+<footer>
+  © 2023 Created by Dan Lellouche and Raphael Delouya, 
+  All rights reserved.
+</footer>
+
+
 
