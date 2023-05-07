@@ -1,0 +1,10 @@
+argparse==1.4.0
+beautifulsoup4==4.9.3
+bs4==0.0.1
+difflib==3.7.0
+fuzzywuzzy==0.18.0
+json==2.0.9
+pymysql==1.0.2
+requests==2.25.1
+selenium==3.141.0
+
