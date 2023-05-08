@@ -3,7 +3,7 @@ import pymysql
 
 def create_database():
     conn = pymysql.connect(
-        host="localhost",
+        host="data-mining-db1.cttpnp4olbpx.us-west-1.rds.amazonaws.com",
         user="raphael-dan",
         password="raphael_dan",
     )
@@ -15,9 +15,9 @@ def create_database():
 
 def create_tables():
     conn = pymysql.connect(
-        host="localhost",
+        host="data-mining-db1.cttpnp4olbpx.us-west-1.rds.amazonaws.com",
         user="raphael_dan",
-        password="raphael_dan:",
+        password="raphael_dan",
         database='raphael_dan'
     )
 
