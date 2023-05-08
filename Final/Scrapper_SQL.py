@@ -56,7 +56,7 @@ def competition_name(soup):
     Gives the competition name
     """
     competition_element = soup.find(class_=config["COMPETITION"])
-    competition_info = competition_element.text.strip() if competition_element else 0
+    competition_info = competition_element.text.strip() if competition_element else None
     return competition_info
 
 
@@ -74,7 +74,7 @@ def bet_draw(soup):
     Finds the draw bet
     """
     odds_elements = soup.find_all(class_=config["ODDS"])
-    odds_draw = odds_elements[1].text.strip() if odds_elements else None
+    odds_draw = odds_elements[1].text.strip() if odds_elements else 0
     return odds_draw
 
 
