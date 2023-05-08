@@ -56,7 +56,7 @@ def competition_name(soup):
     Gives the competition name
     """
     competition_element = soup.find(class_=config["COMPETITION"])
-    competition_info = competition_element.text.strip() if competition_element else None
+    competition_info = competition_element.text.strip() if competition_element else 0
     return competition_info
 
 
@@ -65,7 +65,7 @@ def bet_winner_home(soup):
     Finds the win bet for the home player
     """
     odds_elements = soup.find_all(class_=config["ODDS"])
-    odds_winner_home = odds_elements[0].text.strip() if odds_elements else None
+    odds_winner_home = odds_elements[0].text.strip() if odds_elements else 0
     return odds_winner_home
 
 
@@ -83,7 +83,7 @@ def bet_winner_away(soup):
     Finds the win bet for the away player
     """
     odds_elements = soup.find_all(class_=config["ODDS"])
-    odds_winner_away = odds_elements[2].text.strip() if odds_elements else None
+    odds_winner_away = odds_elements[2].text.strip() if odds_elements else 0
     return odds_winner_away
 
 
