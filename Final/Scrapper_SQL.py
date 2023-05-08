@@ -13,10 +13,10 @@ create_database()
 create_tables()
 
 conn = pymysql.connect(
-    host="localhost",
-    user="root",
-    password="30030705EasG:",
-    database='Flashscore'
+    host="data-mining-db1.cttpnp4olbpx.us-west-1.rds.amazonaws.com",
+    user="raphael_dan",
+    password="raphael_dan",
+    database='raphael_dan'
 )
 
 cursor = conn.cursor()
